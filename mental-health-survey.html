@@ -489,6 +489,7 @@
   <div class="card">
     <div class="timeframe">⏱ Past 6 months</div>
     <div class="instrument-note">ASRS-v1.1 · WHO / Kessler et al. (2005)</div>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;">How often do you have difficulty with each of the following?</p>
     <div class="rq-list" id="adhd-list"></div>
   </div>
 </div>
@@ -502,7 +503,7 @@
   </div>
   <div class="card">
     <div class="timeframe">⏱ Past month</div>
-    <div class="instrument-note">Brief OCD referral flag (2-item screen — not a scored instrument)</div>
+    <div class="instrument-note">2-item referral screen · not a scored instrument</div>
     <div class="rq-list" id="ocd-flag-list"></div>
   </div>
 </div>
@@ -516,7 +517,7 @@
   </div>
   <div class="card">
     <div class="timeframe">⏱ Past month</div>
-    <div class="instrument-note">Brief psychosis referral flag (3-item screen — not a scored instrument)</div>
+    <div class="instrument-note">3-item referral screen · not a scored instrument</div>
     <div class="cultural-note">
       These questions are about experiences that felt <strong>strange or frightening</strong> to you personally — not about your spiritual beliefs or religious faith, which are entirely personal.
     </div>
@@ -537,7 +538,7 @@
   </div>
   <div class="card">
     <div class="timeframe">⏱ Past week</div>
-    <div class="instrument-note">Mini-SPIN · Connor et al. (2001) — validated 3-item Social Anxiety screen<br>0 = Not at all &nbsp;→&nbsp; 4 = Extremely</div>
+    <div class="instrument-note">Mini-SPIN · Connor et al. (2001)<br>0 = Not at all &nbsp;→&nbsp; 4 = Extremely</div>
     <div class="rq-list" id="spin-list"></div>
   </div>
 </div>
@@ -793,12 +794,12 @@ const somaticScale = ["Not bothered at all","Bothered a little","Bothered a lot"
 
 // ASRS
 const adhdItems = [
-  "Finishing tasks after the hard part is done",
-  "Getting things in order when a task needs organisation",
-  "Remembering appointments or things you promised to do",
-  "Avoiding or putting off tasks that need a lot of thinking",
-  "Fidgeting or squirming with your hands or feet when sitting for a long time",
-  "Feeling overly active or driven — like a motor inside you that won't stop"
+  "Finishing a task all the way through, once the difficult part is over",
+  "Keeping things organised when a task involves several steps",
+  "Remembering appointments or things you said you would do",
+  "Getting started on tasks that require a lot of thinking",
+  "Sitting still without fidgeting or squirming",
+  "Feeling like you cannot slow down or switch off — as if driven by a motor inside you"
 ];
 const adhdScale = ["Never","Rarely","Sometimes","Often","Very often"];
 
@@ -1172,7 +1173,7 @@ function getScores() {
       {max:4,text:'Minimal',color:'#3a9e6e'},{max:9,text:'Mild–moderate',color:'#f59e0b'},
       {max:14,text:'High — review recommended',color:'#dc2626'}]),
 
-    interp('Focus/ADHD (ASRS-6)', adhd, [
+    interp('Focus & attention (ASRS-6)', adhd, [
       {max:8,text:'Low likelihood',color:'#3a9e6e'},{max:16,text:'Moderate',color:'#f59e0b'},
       {max:24,text:'High likelihood',color:'#dc2626'}]),
 
