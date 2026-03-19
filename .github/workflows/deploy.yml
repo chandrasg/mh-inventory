@@ -23,8 +23,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Rename survey as index.html for root access
-        run: cp mental-health-survey.html index.html
+      - name: Inject secrets and build index.html
+        env:
+          GOOGLE_SHEET_URL: ${{ secrets.GOOGLE_SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+        run: |
+          # Substitute placeholders — secrets never appear in source code
+          sed \
+            -e "s|__GOOGLE_SHEET_URL__|${GOOGLE_SHEET_URL}|g" \
+            -e "s|__SHEET_TOKEN__|${SHEET_TOKEN}|g" \
+            mental-health-survey.html > index.html
+
+      - name: Verify no placeholders leaked into build output
+        run: |
+          if grep -q '__GOOGLE_SHEET_URL__\|__SHEET_TOKEN__' index.html; then
+            echo "ERROR: Unreplaced placeholder found in index.html — check your GitHub Secrets."
+            exit 1
+          fi
+          echo "✓ No placeholders in build output."
 
       - uses: actions/configure-pages@v5
 

@@ -857,7 +857,8 @@
 
 <script>
 // ── CONFIG — paste your Apps Script Web App URL here ─────────────
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbx5ZJSyzE8nAoDPzTtMvSSoMtP-Nm47YjYjqttjjmreesI6OvHRPhzxfyOUnjC3KTwN/exec';
+const GOOGLE_SHEET_URL = '__GOOGLE_SHEET_URL__';
+const SHEET_TOKEN      = '__SHEET_TOKEN__';
 // ─────────────────────────────────────────────────────────────────
 
 // ── Data definitions ──────────────────────────────
@@ -1272,7 +1273,7 @@ function setSubmitStatus(type, msg) {
 }
 
 async function postToGoogleSheets(scores) {
-  if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL === 'PASTE_YOUR_WEB_APP_URL_HERE') {
+  if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.startsWith('__')) {
     setSubmitStatus('warn', '⚠ Google Sheets not configured. Results saved locally only.');
     return;
   }
@@ -1288,6 +1289,7 @@ async function postToGoogleSheets(scores) {
     },
     scores: scores.map(s => ({ section: s.label, raw_score: s.val, interpretation: s.text })),
     raw_answers: answers,
+    _token: SHEET_TOKEN,
   };
 
   // Retry up to 3 times with exponential backoff

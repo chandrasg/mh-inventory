@@ -23,6 +23,15 @@
 
 const SHEET_NAME = 'Responses';
 
+// ── Secret token ──────────────────────────────────────────────────
+// Set this to the same value as the SHEET_TOKEN GitHub Secret.
+// In Apps Script: go to Project Settings → Script Properties →
+// add a property named SHEET_TOKEN with the same random value.
+// This rejects any POST that does not include the correct token.
+function getToken() {
+  return PropertiesService.getScriptProperties().getProperty('SHEET_TOKEN') || '';
+}
+
 // Column headers — order must match buildRow() below
 const HEADERS = [
   'Timestamp',
@@ -62,6 +71,12 @@ function doPost(e) {
   try {
     const raw = e.postData.contents;
     const data = JSON.parse(raw);
+
+    // Reject requests that don't carry the shared secret token
+    const expected = getToken();
+    if (expected && data._token !== expected) {
+      return respond({ status: 'error', message: 'Unauthorised' });
+    }
     const ss   = SpreadsheetApp.getActiveSpreadsheet();
     let sheet  = ss.getSheetByName(SHEET_NAME);
 
