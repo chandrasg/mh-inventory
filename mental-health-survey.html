@@ -268,8 +268,8 @@
   </div>
   <div class="card">
     <div class="q-block">
-      <label class="q-label" for="pid">Participant ID <span style="font-size:.8rem;font-weight:400;color:var(--muted);">(given to you by your coordinator)</span></label>
-      <input type="text" id="pid" name="participant_id" placeholder="e.g. MH-2024-001" />
+      <label class="q-label" for="pid">Participant ID <span style="font-size:.8rem;font-weight:400;color:var(--muted);">(auto-generated — you may edit if needed)</span></label>
+      <input type="text" id="pid" name="participant_id" placeholder="Generating…" />
       <div class="error-msg" id="err-pid">Please enter your Participant ID.</div>
     </div>
     <div class="q-block">
@@ -652,6 +652,59 @@
 const GOOGLE_SHEET_URL = '__GOOGLE_SHEET_URL__';
 const SHEET_TOKEN      = '__SHEET_TOKEN__';
 // ─────────────────────────────────────────────────
+
+// ── Timing ───────────────────────────────────────
+const surveyStartTime = new Date();
+
+// ── Participant ID generation ─────────────────────
+// Format: <CITY>-<YYYYMMDD>-<HHMMSS>-<RAND4>
+// e.g.  MUM-20260319-143052-A7F3
+let _locationCode = null; // cached after first geolocation attempt
+
+async function resolveLocationCode() {
+  if (_locationCode !== null) return _locationCode;
+  try {
+    const pos = await new Promise((res, rej) =>
+      navigator.geolocation.getCurrentPosition(res, rej, { timeout: 6000, maximumAge: 300000 })
+    );
+    const { latitude, longitude } = pos.coords;
+    // Store raw coords for backend
+    answers['_geo_lat'] = latitude.toFixed(4);
+    answers['_geo_lon'] = longitude.toFixed(4);
+
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+      { headers: { 'Accept-Language': 'en', 'User-Agent': 'WellBeingCheckIn/1.0' } }
+    );
+    const d = await r.json();
+    const city = (d.address.city || d.address.town || d.address.village ||
+                  d.address.county || d.address.state_district || '')
+                  .replace(/\s+/g, '').replace(/[^A-Za-z]/g, '').slice(0, 4).toUpperCase();
+    _locationCode = city || 'IN';
+  } catch (_) {
+    _locationCode = 'XX'; // denied or offline
+  }
+  return _locationCode;
+}
+
+async function generateParticipantID() {
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10).replace(/-/g, '');
+  const time = now.toTimeString().slice(0, 8).replace(/:/g, '');
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  const loc  = await resolveLocationCode();
+  return `${loc}-${date}-${time}-${rand}`;
+}
+
+async function prefillParticipantID() {
+  const field = document.getElementById('pid');
+  if (field.value) return; // don't overwrite if user already typed something
+  try {
+    field.value = await generateParticipantID();
+  } catch (_) {
+    field.placeholder = 'e.g. MUM-20260319-A3F9';
+  }
+}
 
 // ── Screen section labels ─────────────────────────
 const screenSection = [
@@ -1160,9 +1213,11 @@ function saveAndFinish() {
   document.querySelectorAll('input[type=text], input[type=number], textarea').forEach(el => {
     if (el.name && el.value) answers[el.name] = el.value;
   });
-  answers['participant_id'] = document.getElementById('pid').value;
-  answers['age']            = document.getElementById('p-age').value;
-  answers['timestamp']      = new Date().toISOString();
+  answers['participant_id']    = document.getElementById('pid').value;
+  answers['age']               = document.getElementById('p-age').value;
+  answers['survey_start_time'] = surveyStartTime.toISOString();
+  answers['survey_submit_time']= new Date().toISOString();
+  answers['duration_seconds']  = Math.round((Date.now() - surveyStartTime.getTime()) / 1000);
   answers['phq_gate_triggered'] = phq2Score() >= 3;
   answers['gad_gate_triggered'] = gad2Score() >= 3;
   answers['mrs_shown']          = getAge() >= 42;
@@ -1203,8 +1258,16 @@ async function postToGoogleSheets(scores) {
   }
   setSubmitStatus('sending', '⏳ Sending responses to secure database…');
   const payload = {
-    timestamp: answers['timestamp'],
-    participant: { id: answers['participant_id'], age: answers['age'], gender: answers['gender'] },
+    survey_start_time:  answers['survey_start_time'],
+    survey_submit_time: answers['survey_submit_time'],
+    duration_seconds:   answers['duration_seconds'],
+    participant: {
+      id:     answers['participant_id'],
+      age:    answers['age'],
+      gender: answers['gender'],
+      geo_lat: answers['_geo_lat'] || null,
+      geo_lon: answers['_geo_lon'] || null,
+    },
     scores: scores.map(s => ({ section: s.label, raw_score: s.val, interpretation: s.text })),
     raw_answers: answers,
     _token: SHEET_TOKEN,
@@ -1230,7 +1293,9 @@ function downloadResults() {
   const scores = getScores();
   const out = {
     participant: { id: answers['participant_id']||'—', age: answers['age']||'—', gender: answers['gender']||'—' },
-    timestamp: answers['timestamp'],
+    survey_start_time:  answers['survey_start_time'],
+    survey_submit_time: answers['survey_submit_time'],
+    duration_seconds:   answers['duration_seconds'],
     adaptive: { phq_gate_triggered: answers['phq_gate_triggered'], gad_gate_triggered: answers['gad_gate_triggered'], mrs_shown: answers['mrs_shown'] },
     scores: scores.map(s => ({ section:s.label, raw_score:s.val, interpretation:s.text })),
     raw_answers: answers,
@@ -1246,6 +1311,7 @@ function downloadResults() {
 
 // ── Init ──────────────────────────────────────────
 function init() {
+  prefillParticipantID(); // async — runs in background, populates field when ready
   buildPHQ2List();
   buildPHQ9RemainList();
   buildMDQList();
