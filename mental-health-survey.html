@@ -543,8 +543,41 @@
   </div>
 </div>
 
-<!-- ══ SCREEN 15 — MRS Menopause (CONDITIONAL: age ≥ 42) ══ -->
+<!-- ══ SCREEN 15 — Relationships ══ -->
 <div class="screen" id="screen-15">
+  <div class="hero" style="background:linear-gradient(135deg,#7b6aa0,#a08ec0);">
+    <span class="emoji">🫶</span>
+    <h1>Relationships</h1>
+    <p>The people in our lives have a big impact on how we feel. A few questions about your close relationships.</p>
+  </div>
+  <div class="card">
+    <div class="q-block">
+      <span class="q-label">Which best describes your relationship status right now?</span>
+      <div class="pill-group" id="rel-status-group">
+        <label class="pill" onclick="selectPill(this,'rel_status','married')"><input type="radio" name="rel_status" value="married"/><div class="dot"></div>Married or living with a partner</label>
+        <label class="pill" onclick="selectPill(this,'rel_status','relationship')"><input type="radio" name="rel_status" value="relationship"/><div class="dot"></div>In a relationship (not living together)</label>
+        <label class="pill" onclick="selectPill(this,'rel_status','separated')"><input type="radio" name="rel_status" value="separated"/><div class="dot"></div>Separated or divorced</label>
+        <label class="pill" onclick="selectPill(this,'rel_status','widowed')"><input type="radio" name="rel_status" value="widowed"/><div class="dot"></div>Widowed</label>
+        <label class="pill" onclick="selectPill(this,'rel_status','single')"><input type="radio" name="rel_status" value="single"/><div class="dot"></div>Single / Not in a relationship</label>
+        <label class="pill" onclick="selectPill(this,'rel_status','prefer_not')"><input type="radio" name="rel_status" value="prefer_not"/><div class="dot"></div>Prefer not to say</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1rem;">
+    <div class="instrument-note">Adapted from RAS · Hendrick (1988) &nbsp;·&nbsp; 1 = Strongly disagree &nbsp;→&nbsp; 5 = Strongly agree<br>Think of your closest relationship — with a partner, family member, or close friend.</div>
+    <div class="rq-list" id="rel-list"></div>
+
+    <hr class="divider"/>
+    <div class="q-block">
+      <span class="q-label">Is there anything about your relationships you would like to share? <span class="optional-badge">Optional</span></span>
+      <textarea name="rel_open" placeholder="e.g. a relationship that has been on your mind, something you wish were different…"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 16 — MRS Menopause (CONDITIONAL: age ≥ 42) ══ -->
+<div class="screen" id="screen-16">
   <div class="hero rose-hero">
     <span class="emoji">🌺</span>
     <h1>Body Changes in Midlife</h1>
@@ -562,8 +595,8 @@
   </div>
 </div>
 
-<!-- ══ SCREEN 16 — Good Day (2 questions) ══ -->
-<div class="screen" id="screen-16">
+<!-- ══ SCREEN 17 — Good Day (2 questions) ══ -->
+<div class="screen" id="screen-17">
   <div class="hero green-hero">
     <span class="emoji">☀️</span>
     <h1>What Makes a Good Day?</h1>
@@ -581,8 +614,8 @@
   </div>
 </div>
 
-<!-- ══ SCREEN 17 — WEMWBS-7 ══ -->
-<div class="screen" id="screen-17">
+<!-- ══ SCREEN 18 — WEMWBS-7 ══ -->
+<div class="screen" id="screen-18">
   <div class="hero orange-hero">
     <span class="emoji">🌺</span>
     <h1>Positive Well-Being</h1>
@@ -596,8 +629,8 @@
   </div>
 </div>
 
-<!-- ══ SCREEN 18 — CWB (4 items) + open question ══ -->
-<div class="screen" id="screen-18">
+<!-- ══ SCREEN 19 — CWB (4 items) + open question ══ -->
+<div class="screen" id="screen-19">
   <div class="hero orange-hero">
     <span class="emoji">🌺</span>
     <h1>Strengths &amp; Purpose</h1>
@@ -715,9 +748,10 @@ const screenSection = [
   'Anxiety','Anxiety',
   'Sleep','Physical Health','Focus',
   'Thoughts','Experiences','Social',
+  'Relationships',
   'Midlife Changes','Good Days','Well-Being','Strengths'
 ];
-const TOTAL_SCREENS = 18;
+const TOTAL_SCREENS = 19;
 
 // ── Data ──────────────────────────────────────────
 
@@ -775,7 +809,7 @@ const isiItemsA = [
 ];
 const isiItem4  = "How satisfied are you with your current sleep?";
 const isiItemsC = [
-  "How much do others notice that your sleep problem affects your daily life?",
+  "How much has your sleep problem been noticeable to the people around you?",
   "How worried or distressed are you about your current sleep problem?",
   "How much does your sleep problem get in the way of daily life — energy, mood, ability to cope?"
 ];
@@ -830,9 +864,9 @@ const mrsItems = [
   "Heart discomfort (racing or irregular heartbeat, palpitations)",
   "Sleep problems (difficulty falling asleep, waking during the night, sleeping too little)",
   "Joint and muscle discomfort (pain in joints, body aches)",
-  "Depressive mood (feeling down, sad, tearful, low drive, mood swings)",
-  "Irritability (feeling tense, nervous, inner restlessness, on edge)",
-  "Anxiety (inner restlessness, feelings of panic)",
+  "Low mood (feeling sad, tearful, low on drive, mood swings)",
+  "Irritability (snapping more easily, feeling short-tempered or on edge)",
+  "Worry and restlessness (feeling tense inside, a sense that something bad might happen)",
   "Physical and mental tiredness (low energy, poor memory, difficulty concentrating)"
 ];
 const mrsSeverity = ["None","Mild","Moderate","Severe","Very Severe"];
@@ -852,10 +886,20 @@ const wemwbsScale = ["None of\nthe time","Rarely","Some of\nthe time","Often","A
 // CWB — trimmed to 4 key items
 const cwbItems = [
   "I feel warmth and closeness with the people who matter most to me (family, friends)",
-  "My life has a clear sense of purpose or meaning beyond day-to-day tasks",
+  "My life feels meaningful — not just about getting through each day",
   "I have time and space to take care of myself — not just others",
   "I feel hopeful about the next chapter of my life"
 ];
+
+// Relationship quality — 5 items adapted from RAS (Hendrick 1988), inclusive of all relationship types
+const relItems = [
+  "I am satisfied with my closest relationship — whether with a partner, a family member, or a close friend",
+  "The person I feel closest to understands and supports me well",
+  "I often feel unheard or unsupported by the people close to me",
+  "I feel safe being honest and open with the people close to me",
+  "My close relationships add to my sense of happiness and well-being"
+];
+const relScale = ["Strongly\ndisagree","Disagree","Not\nsure","Agree","Strongly\nagree"];
 const cwbScale = ["Not\nat all","A\nlittle","Some-\nwhat","Quite\na bit","Very\nmuch"];
 
 // ── Answers store ─────────────────────────────────
@@ -1037,14 +1081,15 @@ function getNext(n) {
   if (n === 3) return 4;
   if (n === 4) return 5;
   if (n === 7) return gad2Score() >= 3 ? 8 : 9;  // skip GAD-7 detail if below gate
-  if (n === 14) return getAge() >= 42 ? 15 : 16;
+  if (n === 15) return getAge() >= 42 ? 16 : 17;  // skip MRS if age < 42
   if (n === TOTAL_SCREENS) return 'done';
   return n + 1;
 }
 function getPrev(n) {
   if (n === 5) return phq2Score() >= 3 ? 4 : 2;
   if (n === 9) return gad2Score() >= 3 ? 8 : 7;
-  if (n === 16) return getAge() >= 42 ? 15 : 14;
+  if (n === 16) return 15;                         // back from MRS always → relationships
+  if (n === 17) return getAge() >= 42 ? 16 : 15;  // back from Good Day: MRS if age≥42, else relationships
   return n - 1;
 }
 
@@ -1198,11 +1243,25 @@ function getScores() {
       {max:20,text:'Strong',color:'#3a9e6e'}]),
   ];
 
+  // MRS — insert after social anxiety (index 8) when shown
   if (getAge() >= 42) {
     const mrs = sumKeys('mrs', 8);
-    rows.splice(9, 0, interp('Midlife symptoms (MRS)', mrs, [
+    rows.splice(8, 0, interp('Midlife symptoms (MRS)', mrs, [
       {max:4,text:'Minimal',color:'#3a9e6e'},{max:8,text:'Mild',color:'#7ec86a'},
       {max:16,text:'Moderate',color:'#f59e0b'},{max:32,text:'Severe',color:'#dc2626'}]));
+  }
+
+  // Relationship satisfaction (adapted RAS): items 1,2,4,5 positive; item 3 reverse-scored
+  const r1 = Number(answers['rel1']||0);
+  const r2 = Number(answers['rel2']||0);
+  const r3 = Number(answers['rel3']||0);
+  const r4 = Number(answers['rel4']||0);
+  const r5 = Number(answers['rel5']||0);
+  if ([r1,r2,r3,r4,r5].some(v => v > 0)) {
+    const relScore = r1 + r2 + (r3 > 0 ? 6 - r3 : 0) + r4 + r5;
+    rows.splice(rows.length - 2, 0, interp('Relationship satisfaction', relScore, [
+      {max:14,text:'Low',color:'#dc2626'},{max:19,text:'Moderate',color:'#f59e0b'},
+      {max:25,text:'Good',color:'#3a9e6e'}]));
   }
 
   return rows;
@@ -1324,6 +1383,7 @@ function init() {
   buildFlagList('ocd-flag-list', ocdFlagItems, 'ocd');
   buildFlagList('px-flag-list',  pxFlagItems,  'px');
   buildRQList('spin-list',    spinItems,    spinScale,    'spin',    'g5');
+  buildRQList('rel-list',     relItems,     relScale,     'rel',     'g5', true);
   buildRQList('mrs-list',     mrsItems,     mrsSeverity,  'mrs',     'g5');
   buildRQList('wemwbs-list',  wemwbsItems,  wemwbsScale,  'wemwbs',  'g5', true);
   buildRQList('cwb-list',     cwbItems,     cwbScale,     'cwb',     'g5', true);
